@@ -72,6 +72,20 @@ make install
 
 <p>configure has the same options that the PostgreSQL configure used to
 have for ODBC, namely --with-iodbc or --with-unixodbc
+
+<h3>Running the regression tests</h3>
+
+<blockquote>
+<pre>
+cd test
+make installcheck
+</pre>
+</blockquote>
+<p>The regression tests require a PostgreSQL server, version 9.2 or higher,
+to be running on localhost on default port (5432). The test harness depends
+on the pg_regress tool that typically comes with the development files
+(e.g header files) required to build server-side extensions.
+
 <h3>Making a Source Distribution</h3>
 
 <p>'make dist' makes a file psqlodbc-xx.xx.xxxx.tar.gz.  It's even better to

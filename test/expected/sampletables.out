@@ -1,0 +1,9 @@
+-- This file creates some tables to be used in the tests
+CREATE TABLE testtab1 (id integer, t varchar(20));
+INSERT INTO testtab1 VALUES (1, 'foo');
+INSERT INTO testtab1 VALUES (2, 'bar');
+INSERT INTO testtab1 VALUES (3, 'foobar');
+CREATE TABLE intervaltable(id integer, iv interval, d varchar(100));
+INSERT INTO intervaltable VALUES (1, '1 day', 'one day');
+INSERT INTO intervaltable VALUES (2, '10 seconds', 'ten secs');
+INSERT INTO intervaltable VALUES (3, '100 years', 'hundred years');
