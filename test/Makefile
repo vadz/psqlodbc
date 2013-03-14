@@ -1,4 +1,4 @@
-TESTS = connect stmthandles select getresult prepare notice
+TESTS = connect stmthandles select getresult prepare notice arraybinding
 
 REGRESS = sampletables $(TESTS) 
 
