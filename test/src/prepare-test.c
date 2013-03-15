@@ -11,6 +11,7 @@ int main(int argc, char **argv)
   SQLLEN cbParam1;
   long longparam;
   SQL_INTERVAL_STRUCT intervalparam;
+  SQLSMALLINT colcount;
 
   test_connect();
 
@@ -39,6 +40,11 @@ int main(int argc, char **argv)
 			0,		/* buffer len */
 			&cbParam1	/* StrLen_or_IndPtr */);
   CHECK_STMT_RESULT(rc, "SQLBindParameter failed", hstmt);
+
+  /* Test SQLNumResultCols, called before SQLExecute() */
+  rc = SQLNumResultCols(hstmt, &colcount);
+  CHECK_STMT_RESULT(rc, "SQLNumResultCols failed", hstmt);
+  printf("# of result cols: %d\n", colcount);
 
   /* Execute */
   rc = SQLExecute(hstmt);
@@ -122,4 +128,6 @@ int main(int argc, char **argv)
 
   /* Clean up */
   test_disconnect();
+
+  return 0;
 }
