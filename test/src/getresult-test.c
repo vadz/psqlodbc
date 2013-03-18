@@ -14,7 +14,7 @@ int main(int argc, char **argv)
   char *sql;
 
   char buf[40];
-  signed long ld;
+  SQLINTEGER ld;
 
   test_connect();
 
