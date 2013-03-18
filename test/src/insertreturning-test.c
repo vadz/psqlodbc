@@ -14,7 +14,7 @@ int main(int argc, char **argv)
   HSTMT hstmt = SQL_NULL_HSTMT;
   char param1[100];
   SQLLEN cbParam1;
-  SQLSMALLINT colcount;
+  SQLSMALLINT colcount1, colcount2;
   SQLCHAR *sql;
   int i;
 
@@ -56,13 +56,19 @@ int main(int argc, char **argv)
     CHECK_STMT_RESULT(rc, "SQLBindParameter failed", hstmt);
 
     /* Test SQLNumResultCols, called before SQLExecute() */
-    rc = SQLNumResultCols(hstmt, &colcount);
+    rc = SQLNumResultCols(hstmt, &colcount1);
     CHECK_STMT_RESULT(rc, "SQLNumResultCols failed", hstmt);
-    printf("# of result cols: %d\n", colcount);
 
     /* Execute */
     rc = SQLExecute(hstmt);
     CHECK_STMT_RESULT(rc, "SQLExecute failed", hstmt);
+
+    /* Call SQLNumResultCols again, after SQLExecute() */
+    rc = SQLNumResultCols(hstmt, &colcount2);
+    CHECK_STMT_RESULT(rc, "SQLNumResultCols failed", hstmt);
+
+    printf("# of result cols before SQLExecute: %d, after: %d\n",
+	   colcount1, colcount2);
 
     /* Fetch result */
     print_result(hstmt);
