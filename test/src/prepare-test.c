@@ -118,6 +118,44 @@ int main(int argc, char **argv)
   /* Fetch result */
   print_result(hstmt);
 
+  rc = SQLFreeStmt(hstmt, SQL_CLOSE);
+  CHECK_STMT_RESULT(rc, "SQLFreeStmt failed", hstmt);
+
+
+  /****
+   * With BoolsAsChar=1, a varchar param with column_size=5 forces a
+   * server-side Prepare. So test that.
+   */
+
+  /* Prepare a statement */
+  rc = SQLPrepare(hstmt, (SQLCHAR *) "SELECT id, t FROM testtab1 WHERE id = ?", SQL_NTS);
+  CHECK_STMT_RESULT(rc, "SQLPrepare failed", hstmt);
+
+  /* bind param  */
+  param1 = "2";
+  cbParam1 = SQL_NTS;
+  rc = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT,
+			SQL_C_CHAR,	/* value type */
+			SQL_VARCHAR,	/* param type */
+			5,		/* column size. 5 Triggers special
+					 * behavior with BoolsAsChar=1 */
+			0,		/* dec digits */
+			param1,		/* param value ptr */
+			0,		/* buffer len */
+			&cbParam1	/* StrLen_or_IndPtr */);
+  CHECK_STMT_RESULT(rc, "SQLBindParameter failed", hstmt);
+
+  /* Test SQLNumResultCols, called before SQLExecute() */
+  rc = SQLNumResultCols(hstmt, &colcount);
+  CHECK_STMT_RESULT(rc, "SQLNumResultCols failed", hstmt);
+  printf("# of result cols: %d\n", colcount);
+
+  /* Execute */
+  rc = SQLExecute(hstmt);
+  CHECK_STMT_RESULT(rc, "SQLExecute failed", hstmt);
+
+  /* Fetch result */
+  print_result(hstmt);
 
   rc = SQLFreeStmt(hstmt, SQL_DROP);
   if (!SQL_SUCCEEDED(rc))
