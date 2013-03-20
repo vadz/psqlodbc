@@ -1,5 +1,5 @@
 TESTS = connect stmthandles select getresult prepare notice arraybinding \
-	insertreturning dataatexecution
+	insertreturning dataatexecution boolsaschar
 
 REGRESS = sampletables $(TESTS) 
 

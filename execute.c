@@ -281,6 +281,7 @@ decideHowToPrepare(StatementClass *stmt, BOOL force)
 	stmt->prepare |= method;
 	if (PREPARE_BY_THE_DRIVER == method)
 		stmt->discard_output_params = 1;
+
 	return method;
 }
 
@@ -411,9 +412,9 @@ int HowToPrepareBeforeExec(StatementClass *stmt, BOOL checkOnly)
 		if (!CC_is_in_trans(conn) && CC_does_autocommit(conn))
 			nCallParse = doNothing;
 	}
+
 	return nCallParse;
 }
-
 /*
  *	The execution after all parameters were resolved.
  */
@@ -1030,17 +1031,22 @@ PGAPI_Execute(HSTMT hstmt, UWORD flag)
 		   parameters even in case of non-prepared statements.
 		 */
 		int	nCallParse = doNothing;
-
+#ifdef NOT_USED
 		if (NOT_YET_PREPARED == stmt->prepared)
 		{
 			switch (nCallParse = HowToPrepareBeforeExec(stmt, TRUE))
 			{
 				case shouldParse:
-					if (retval = prepareParameters(stmt, TRUE), SQL_ERROR == retval)
+					if (retval = prepareParameters(stmt), SQL_ERROR == retval)
 						goto cleanup;
+					/*
+					 * The prepare might've created a dummy result set.
+					 */
+					//SC_set_Result(stmt, NULL);
 					break;
 			}
 		}
+#endif
 mylog("prepareParameters was %s called, prepare state:%d\n", shouldParse == nCallParse ? "" : "not", stmt->prepare);
 
 		if (ipdopts->param_processed_ptr)
@@ -1064,12 +1070,6 @@ mylog("prepareParameters was %s called, prepare state:%d\n", shouldParse == nCal
 		    SC_can_parse_statement(stmt))
 			parse_sqlsvr(stmt);
 	}
-
-	/*
-	 * Clear any old result sets before executing. The prepare stage might've
-	 * created one.
-	 */
-	SC_set_Result(stmt, NULL);
 
 next_param_row:
 #if (ODBCVER >= 0x0300)

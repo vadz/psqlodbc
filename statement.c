@@ -536,7 +536,7 @@ SC_set_Result(StatementClass *self, QResultClass *res)
 {
 	if (res != self->result)
 	{
-		mylog("SC_set_Result(%x, %x)", self, res);
+		mylog("SC_set_Result(%x, %x)\n", self, res);
 		QR_Destructor(self->result);
 		self->result = self->lastres = self->curres = res;
 		if (NULL != res)
@@ -1128,11 +1128,11 @@ SC_pre_execute(StatementClass *self)
 			{
 				case NAMED_PARSE_REQUEST:
 				case PARSE_TO_EXEC_ONCE:
-					if (SQL_SUCCESS != prepareParameters(self, TRUE))
+					if (SQL_SUCCESS != prepareParameters(self))
 						return num_fields;
 					break;
 				case PARSE_REQ_FOR_INFO:
-					if (SQL_SUCCESS != prepareParameters(self, TRUE))
+					if (SQL_SUCCESS != prepareParameters(self))
 						return num_fields;
 					self->status = STMT_PREMATURE;
 					self->inaccurate_result = TRUE;

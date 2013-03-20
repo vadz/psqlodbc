@@ -2593,7 +2593,6 @@ Prepare_and_convert(StatementClass *stmt, QueryParse *qp, QueryBuild *qb)
 	ConnectionClass	*conn = SC_get_conn(stmt);
 	ConnInfo	*ci = &(conn->connInfo);
 	BOOL	discardOutput, outpara;
-	BOOL	sync = FALSE;
 
 	if (PROTOCOL_74(ci))
 	{
@@ -2609,7 +2608,7 @@ Prepare_and_convert(StatementClass *stmt, QueryParse *qp, QueryBuild *qb)
 	if (QB_initialize(qb, qp->stmt_len, stmt, NULL) < 0)
 		return SQL_ERROR;
 	if (PROTOCOL_74(ci))
-		return prep_params(stmt, qp, qb, sync);
+		return prep_params(stmt, qp, qb, FALSE);
 	discardOutput = (0 != (qb->flags & FLGB_DISCARD_OUTPUT));
 	if (NOT_YET_PREPARED == stmt->prepared) /*  not yet prepared */
 	{
@@ -2778,8 +2777,11 @@ inolog("prep_params\n");
 		ret = SendParseRequest(stmt, plan_name, qb->query_statement, SQL_NTS, -1);
 	if (!ret)
 		goto cleanup;
-	if (!once_descr && (!SendDescribeRequest(stmt, plan_name, TRUE)))
-		goto cleanup;
+	if (!once_descr)
+	{
+		if (!SendDescribeRequest(stmt, plan_name, TRUE))
+			goto cleanup;
+	}
 	SC_set_planname(stmt, plan_name);
 	SC_set_prepared(stmt, plan_name[0] ? PREPARING_PERMANENTLY : PREPARING_TEMPORARILY);
 	if (!sync)
@@ -2842,7 +2844,7 @@ cleanup:
 	return retval;
 }
 
-RETCODE	prepareParameters(StatementClass *stmt, BOOL sync)
+RETCODE	prepareParameters(StatementClass *stmt)
 {
 	switch (stmt->prepared)
 	{
@@ -2857,7 +2859,7 @@ inolog("prepareParameters\n");
 			qb = &query_crt;
 			if (QB_initialize(qb, qp->stmt_len, stmt, NULL) < 0)
 				return SQL_ERROR;
-			return prep_params(stmt, qp, qb, sync);
+			return prep_params(stmt, qp, qb, TRUE);
 	}
 	return SQL_SUCCESS;
 }
