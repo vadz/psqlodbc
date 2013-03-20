@@ -36,10 +36,12 @@ int main(int argc, char **argv)
   rc = SQLFreeStmt(hstmt, SQL_CLOSE);
   CHECK_STMT_RESULT(rc, "SQLFreeStmt failed", hstmt);
 
-  /* Test column-wise binding */
+  /****
+   * Test column-wise binding
+   */
   for (i = 0; i < ARRAY_SIZE; i++)
   {
-    int_array[i] = 0;
+    int_array[i] = i;
     int_ind_array[i] = 0;
     sprintf(str_array[i], "columnwise %d", i);
     str_ind_array[i] = SQL_NTS;
@@ -50,12 +52,13 @@ int main(int argc, char **argv)
   SQLSetStmtAttr(hstmt, SQL_ATTR_PARAMS_PROCESSED_PTR, &nprocessed, 0);
   SQLSetStmtAttr(hstmt, SQL_ATTR_PARAMSET_SIZE, (SQLPOINTER) ARRAY_SIZE, 0);
 
-  // Bind the parameters in column-wise fashion.
+  /* Bind the parameter arrays. */
   SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_ULONG, SQL_INTEGER, 5, 0,
 		   int_array, 0, int_ind_array);
   SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 29, 0,
-                   str_array, 0, str_ind_array);
+                   str_array, 30, str_ind_array);
 
+  /* Execute */
   sql = "INSERT INTO tmptable VALUES (?, ?)";
   rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
   CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
@@ -104,6 +107,15 @@ int main(int argc, char **argv)
 
   /* Check that all the rows were inserted */
   sql = "SELECT COUNT(*) FROM tmptable";
+  rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
+  CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
+  print_result(hstmt);
+
+  rc = SQLFreeStmt(hstmt, SQL_CLOSE);
+  CHECK_STMT_RESULT(rc, "SQLFreeStmt failed", hstmt);
+
+  /* Check the contents of a few rows */
+  sql = "SELECT * FROM tmptable WHERE i IN (0, 1, 100, 9999, 10000) ORDER BY i";
   rc = SQLExecDirect(hstmt, (SQLCHAR *) sql, SQL_NTS);
   CHECK_STMT_RESULT(rc, "SQLExecDirect failed", hstmt);
   print_result(hstmt);
