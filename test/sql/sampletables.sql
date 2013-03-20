@@ -9,6 +9,8 @@ CREATE TABLE byteatab (id integer, t bytea);
 INSERT INTO byteatab VALUES (1, E'\\001\\002\\003\\004\\005\\006\\007\\010'::bytea);
 INSERT INTO byteatab VALUES (2, 'bar');
 INSERT INTO byteatab VALUES (3, 'foobar');
+INSERT INTO byteatab VALUES (4, 'foo');
+INSERT INTO byteatab VALUES (5, 'barf');
 
 CREATE TABLE intervaltable(id integer, iv interval, d varchar(100));
 INSERT INTO intervaltable VALUES (1, '1 day', 'one day');
