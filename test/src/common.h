@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <sql.h>
 #include <sqlext.h>
 
@@ -238,15 +239,18 @@ print_result(HSTMT hstmt)
     {
       char buf[40];
       int i;
+      SQLLEN ind;
 
       for (i = 1; i <= numcols; i++)
       {
-	rc = SQLGetData(hstmt,i, SQL_C_CHAR, buf, sizeof(buf), NULL);
+	rc = SQLGetData(hstmt,i, SQL_C_CHAR, buf, sizeof(buf), &ind);
 	if (!SQL_SUCCEEDED(rc))
 	{
 	  print_diag("SQLGetData failed", SQL_HANDLE_STMT, hstmt);
 	  return;
 	}
+	if (ind == SQL_NULL_DATA)
+	  strcpy(buf, "NULL");
 	printf("%s%s", (i > 1) ? "\t" : "", buf);
       }
       printf("\n");
