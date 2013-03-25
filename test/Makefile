@@ -1,5 +1,6 @@
-TESTS = connect stmthandles select getresult prepare notice arraybinding \
-	insertreturning dataatexecution boolsaschar
+TESTS = connect stmthandles select getresult prepare params notice \
+	arraybinding insertreturning dataatexecution boolsaschar cvtnulldate \
+	alter
 
 REGRESS = sampletables $(TESTS) 
 
